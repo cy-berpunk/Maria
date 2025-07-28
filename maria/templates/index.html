@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Maria</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="chat-container">
+        <div id="chat-box"></div>
+        <div class="input-container">
+            <input type="text" id="user-input" placeholder="こんにちは！聖句？書物？">
+            <button onclick="sendMessage()">送信</button>
+        </div>
+    </div> 
+    <script>
+        async function sendMessage() {
+            const input = document.getElementById('user-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            const chatBox = document.getElementById('chat-box');
+            chatBox.innerHTML += `<div class="user-message">${message}</div>`;
+            input.value = '';
+
+            const response = await fetch('/get_response', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json'},
+                body: JSON.stringify({ message })
+            });
+            const data = await response.json();
+            chatBox.innerHTML +=  `<div class="bot-message">${data.response}</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        document.getElementById('user-input').addEventListener('keypress', (e)=>{
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>
